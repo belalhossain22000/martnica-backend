@@ -24,8 +24,8 @@ const createUserIntoDb = async (payload: User) => {
     );
   }
 
-  const hashedPassword: string = await bcrypt.hash(
-    payload.password,
+  const hashedPassword = await bcrypt.hash(
+    payload.password as string,
     Number(config.bcrypt_salt_rounds)
   );
 

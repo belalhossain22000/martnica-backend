@@ -10,11 +10,7 @@ const CreateUserValidationSchema = z.object({
 });
 
 const UserLoginValidationSchema = z.object({
-  email: z.string().email().nonempty("Email is required"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters long")
-    .nonempty("Password is required"),
+  email: z.string().email().nonempty("Email is required").optional(),
 });
 
 const userUpdateSchema = z.object({

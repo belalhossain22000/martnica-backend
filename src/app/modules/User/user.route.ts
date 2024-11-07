@@ -16,15 +16,14 @@ router.post(
 // *!get all  user
 router.get("/", userController.getUsers);
 
-// *!profile user
+// *!profile user update
 router.put(
   "/profile",
-  validateRequest(UserValidation.userUpdateSchema),
   auth(),
   userController.updateProfile
 );
 
-// *!update  user
-router.put("/:id", auth(UserRole.ADMIN), userController.updateUser);
+// *!update  user by admin using id
+router.put("/:id",userController.updateUser);
 
 export const userRoutes = router;
