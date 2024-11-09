@@ -14,7 +14,7 @@ router.get(
 router.get(
   "/api/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
-  SocialLoginController.googleLogin
+  SocialLoginController.googleCallback
 );
 
 router.get(
@@ -26,7 +26,7 @@ router.get(
 router.get(
   "/api/auth/facebook/callback",
   passport.authenticate("facebook", { failureRedirect: "/" }),
-  SocialLoginController.facebookLogin
+  SocialLoginController.facebookCallback
 );
 
 export const socialLoginRoutes = router;
