@@ -10,7 +10,7 @@ import GlobalErrorHandler from "./app/middlewares/globalErrorHandler";
 import router from "./app/routes";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as FacebookStrategy } from "passport-facebook";
-import prisma from "./shared/prisma";
+import { socialLoginRoutes } from "./app/modules/SocialLogin/socialLogin.route";
 
 dotenv.config();
 
@@ -41,92 +41,92 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(socialLoginRoutes);
 
-// Passport Google OAuth setup
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL!,
-    },
-    (accessToken, refreshToken, profile, done) => {
-      return done(null, profile);
-    }
-  )
-);
+// // Passport Google OAuth setup
+// passport.use(
+//   new GoogleStrategy(
+//     {
+//       clientID: process.env.GOOGLE_CLIENT_ID!,
+//       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+//       callbackURL: process.env.GOOGLE_CALLBACK_URL!,
+//     },
+//     (accessToken, refreshToken, profile, done) => {
+//       return done(null, profile);
+//     }
+//   )
+// );
 
-// Passport Facebook OAuth setup
-passport.use(
-  new FacebookStrategy(
-    {
-      clientID: process.env.FACEBOOK_CLIENT_ID!,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
-      callbackURL: process.env.FACEBOOK_CALLBACK_URL!,
-      profileFields: ["id", "displayName", "email", "photos"],
-    },
-    (accessToken, refreshToken, profile, done) => {
-      return done(null, profile);
-    }
-  )
-);
+// // Passport Facebook OAuth setup
+// passport.use(
+//   new FacebookStrategy(
+//     {
+//       clientID: process.env.FACEBOOK_CLIENT_ID!,
+//       clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+//       callbackURL: process.env.FACEBOOK_CALLBACK_URL!,
+//       profileFields: ["id", "displayName", "email", "photos"],
+//     },
+//     (accessToken, refreshToken, profile, done) => {
+//       return done(null, profile);
+//     }
+//   )
+// );
 
-// Serialize and deserialize user for session management
-passport.serializeUser((user, done) => done(null, user));
-passport.deserializeUser((obj, done) => done(null, obj));
+// // Serialize and deserialize user for session management
+// passport.serializeUser((user, done) => done(null, user));
+// passport.deserializeUser((obj, done) => done(null, obj));
 
-// Route to initiate Google login
-app.get(
-  "/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
+// // Route to initiate Google login
+// app.get(
+//   "/auth/google",
+//   passport.authenticate("google", { scope: ["profile", "email"] })
+// );
 
-// Google OAuth callback route
-app.get(
-  "/api/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/" }),
-  (req: Request, res: Response) => {
-    // Generate JWT after successful login
-    const token = jwt.sign(
-      {
-        name: req.user.displayName,
-        email: req.user.emails?.[0]?.value,
-        photo: req.user.photos?.[0]?.value,
-      },
-      process.env.JWT_SECRET || "default_secret",
-      { expiresIn: "1h" }
-    );
-    // Redirect to frontend with token
-    res.redirect(`http://localhost:3000/?token=${token}`);
-  }
-);
+// // Google OAuth callback route
+// app.get(
+//   "/api/auth/google/callback",
+//   passport.authenticate("google", { failureRedirect: "/" }),
+//   (req: Request, res: Response) => {
+//     // Generate JWT after successful login
+//     const token = jwt.sign(
+//       {
+//         name: req.user.displayName,
+//         email: req.user.emails?.[0]?.value,
+//         photo: req.user.photos?.[0]?.value,
+//       },
+//       process.env.JWT_SECRET || "default_secret",
+//       { expiresIn: "1h" }
+//     );
+//     // Redirect to frontend with token
+//     res.redirect(`http://localhost:3000/?token=${token}`);
+//   }
+// );
 
-// Route for initiating Facebook OAuth
-app.get(
-  "/auth/facebook",
-  passport.authenticate("facebook", { scope: ["email","public_profile"] })
-);
+// // Route for initiating Facebook OAuth
+// app.get(
+//   "/auth/facebook",
+//   passport.authenticate("facebook", { scope: ["email","public_profile"] })
+// );
 
+// // Facebook OAuth callback route
+// app.get(
+//   "/api/auth/facebook/callback",
+//   passport.authenticate("facebook", { failureRedirect: "/" }),
+//   (req, res) => {
 
-// Facebook OAuth callback route
-app.get(
-  "/api/auth/facebook/callback",
-  passport.authenticate("facebook", { failureRedirect: "/" }),
-  (req, res) => {
-  
-    const token = jwt.sign(
-      {
-        displayName: req.user.displayName,
-        email: req.user.emails ? req.user.emails[0].value : "", // Facebook may not always provide email
-        photo: req.user.photos ? req.user.photos[0].value : "",
-      },
-      process.env.JWT_SECRET || "default_secret",
-      { expiresIn: "1h" }
-    );
-    res.redirect(`http://localhost:3000/?token=${token}`);
-    // res.send(token);
-  }
-);
+//     const token = jwt.sign(
+//       {
+//         displayName: req.user.displayName,
+//         email: req.user.emails ? req.user.emails[0].value : "", // Facebook may not always provide email
+//         photo: req.user.photos ? req.user.photos[0].value : "",
+//       },
+//       process.env.JWT_SECRET || "default_secret",
+//       { expiresIn: "1h" }
+//     );
+//     res.redirect(`http://localhost:3000/?token=${token}`);
+//     // res.send(token);
+//   }
+// );
 
 // Route handler for root endpoint
 app.get("/", (req: Request, res: Response) => {
