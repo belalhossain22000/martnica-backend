@@ -1,34 +1,38 @@
 import { Request, Response } from "express";
-import passport from "../../../config/passportSetup";
-import {SocialLoginService } from "./socialLogin.service";
+import { SocialLoginService } from "./socialLogin.service";
+import catchAsync from "../../../shared/catchAsync";
+import sendResponse from "../../../shared/sendResponse";
+import httpStatus from "http-status";
 
-// Initiate Google login
-const googleLogin = passport.authenticate("google", {
-  scope: ["profile", "email"],
+
+// login all user form db googleCallbacks
+const googleLogin = catchAsync(async (req: Request & {user?:any}, res: Response) => {
+
+  const result = await SocialLoginService.googleLoginIntoDb(req.user);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "user loggedin  successfully!",
+    data: result,
+  });
 });
 
-// Google callback route
-const googleCallback = async (req: Request, res: Response) => {
-  const token = await SocialLoginService.googleLoginIntoDb(req.user);
+// login all user form db facebookCallback
+const facebookLogin = catchAsync(async (req: Request & {user?:any}, res: Response) => {
 
-  res.redirect(`http://localhost:3000/?token=${token}`);
-};
+  const result = await SocialLoginService.facebookLoginIntoDb(req.user);
 
-// Initiate Facebook login
-const facebookLogin = passport.authenticate("facebook", {
-  scope: ["email", "public_profile"],
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "user loggedin  successfully!",
+    data: result,
+  });
 });
 
-// Facebook callback route
-const facebookCallback = async (req: Request, res: Response) => {
-  const token =await SocialLoginService.facebookLoginIntoDb(req.user);
-
-  res.redirect(`http://localhost:3000/?token=${token}`);
-};
 
 export const SocialLoginController = {
   googleLogin,
-  googleCallback,
   facebookLogin,
-  facebookCallback,
 };
